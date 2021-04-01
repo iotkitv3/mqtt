@@ -10,6 +10,7 @@
 #if MBED_CONF_IOTKIT_BMP180_SENSOR == true
 #include "BMP180Wrapper.h"
 #endif
+#include "MFRC522.h"
 
 #ifdef TARGET_K64F
 #include "QEI.h"
@@ -38,6 +39,7 @@ DigitalIn button( MBED_CONF_IOTKIT_BUTTON1 );
 char* topicTEMP = (char*) "iotkit/sensor";
 char* topicALERT = (char*) "iotkit/alert";
 char* topicBUTTON = (char*) "iotkit/button";
+char* topicRFID = (char*) "iotkit/rfid";
 char* topicENCODER = (char*) "iotkit/encoder";
 // Topic's subscribe
 char* topicActors = (char*) "iotkit/actors/#";
@@ -59,9 +61,15 @@ DigitalOut alert( MBED_CONF_IOTKIT_LED3 );
 
 // Aktore(n)
 PwmOut speaker( MBED_CONF_IOTKIT_BUZZER );
-// Servo2 (Pin mit PWM)
-Servo servo2 ( MBED_CONF_IOTKIT_SERVO2 );
 Motor m1( MBED_CONF_IOTKIT_MOTOR2_PWM, MBED_CONF_IOTKIT_MOTOR2_FWD, MBED_CONF_IOTKIT_MOTOR2_REV ); // PWM, Vorwaerts, Rueckwarts
+// NFC/RFID Reader (SPI)
+MFRC522    rfidReader( MBED_CONF_IOTKIT_RFID_MOSI, MBED_CONF_IOTKIT_RFID_MISO, MBED_CONF_IOTKIT_RFID_SCLK, MBED_CONF_IOTKIT_RFID_SS, MBED_CONF_IOTKIT_RFID_RST ); 
+// Servo2 (Pin mit PWM, K64F = D11, andere D9)
+#ifdef TARGET_K64F
+Servo servo2 ( MBED_CONF_IOTKIT_SERVO3 );
+#else
+Servo servo2 ( MBED_CONF_IOTKIT_SERVO2 );
+#endif
 
 /** Hilfsfunktion zum Publizieren auf MQTT Broker */
 void publish( MQTTNetwork &mqttNetwork, MQTT::Client<MQTTNetwork, Countdown> &client, char* topic )
@@ -154,6 +162,8 @@ int main()
     /* Init all sensors with default params */
     hum_temp.init(NULL);
     hum_temp.enable(); 
+    // RFID Reader initialisieren
+    rfidReader.PCD_Init();      
 
     while   ( 1 ) 
     {
@@ -212,6 +222,25 @@ int main()
             sprintf( buf, "ON" );
             publish( mqttNetwork, client, topicBUTTON );
         }
+
+        // RFID Reader
+        if ( rfidReader.PICC_IsNewCardPresent())
+            if ( rfidReader.PICC_ReadCardSerial()) 
+            {
+                // Print Card UID (2-stellig mit Vornullen, Hexadecimal)
+                printf("Card UID: ");
+                for ( int i = 0; i < rfidReader.uid.size; i++ )
+                    printf("%02X:", rfidReader.uid.uidByte[i]);
+                printf("\n");
+                
+                // Print Card type
+                int piccType = rfidReader.PICC_GetType(rfidReader.uid.sak);
+                printf("PICC Type: %s \n", rfidReader.PICC_GetTypeName(piccType) );
+                
+                sprintf( buf, "%02X:%02X:%02X:%02X:", rfidReader.uid.uidByte[0], rfidReader.uid.uidByte[1], rfidReader.uid.uidByte[2], rfidReader.uid.uidByte[3] );
+                publish( mqttNetwork, client, topicRFID );                
+                
+            }         
 
 #ifdef TARGET_K64F
 
