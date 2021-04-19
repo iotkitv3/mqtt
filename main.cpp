@@ -94,8 +94,10 @@ void messageArrived( MQTT::MessageData& md )
     MQTT::Message &message = md.message;
     printf("Message arrived: qos %d, retained %d, dup %d, packetid %d\n", message.qos, message.retained, message.dup, message.id);
     printf("Topic %.*s, ", md.topicName.lenstring.len, (char*) md.topicName.lenstring.data );
-    printf("Payload %.*s\n", message.payloadlen, (char*) message.payload);
-    
+    // MQTT schickt kein \0, deshalb manuell anfuegen
+    ((char*) message.payload)[message.payloadlen] = '\0';
+    printf("Payload %s\n", (char*) message.payload);
+
     // Aktoren
     if  ( strncmp( (char*) md.topicName.lenstring.data + md.topicName.lenstring.len - 6, "servo2", 6) == 0 )
     {
