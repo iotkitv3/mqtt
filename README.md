@@ -350,6 +350,16 @@ Sollte das Beispiel nicht sauber funktionieren (Subscribe Topic), kann die alte 
 * mbed Teil
     * [MQTTPublish](#mqttpublish) Beispiel in mbed Compiler importieren und ca. auf Zeile 21 den `hostname` mit der IP-Adresse auswechseln wo der Mosquitto Server läuft. 
     * Programm Compilieren und auf Board laden.
+    
+**Daten an IoTKitV3 senden:**
+
+* In Node-RED
+    * `inject` Node (2x mal) auf Flow 1 platzieren. Nutzdaten "String" und zwei unterschiedliche Werte, z.B. 0.2 und 0.9 eingeben. Als Topic `iotkit/actors/servo2` eintragen
+    * `mqtt out` Node auf Flow 1 platzieren. Gleicher MQTT Server, wie oben, eintragen. Die restlichen Felder auf Standardwerte belassen.
+
+Servo an IoTKitV3 (oranges Kabel auf `S`) an Servo 2 Anschluss (in der Regel `D9`) anschliessen.
+
+Durch abwechselendes Drücken auf die zwei `inject` Nodes wird der Servo hin und her bewegt.
 
 **Links**
  
