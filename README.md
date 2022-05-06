@@ -55,11 +55,11 @@ Beispiel: Abfragen der Werte von Temperatur und Luftfeuchtigkeit (Ausgabe: I2C I
 
 Beispiel: Abfragen ob jemand einen Magneten an den Hall Sensor gehalten hat
     
-    mosquitto_sub -h broker.mqttdashboard.com -t iotkit/alert/#
+    mosquitto_sub -h cloud.tbz.ch -t iotkit/alert/#
     
 Beispiel: Setzen der Servo Position (0.0 - 1.0) 
 
-    mosquitto_pub -h broker.mqttdashboard.com -t "iotkit/actors/servo2" -m "0.1" -q 0    
+    mosquitto_pub -h cloud.tbz.ch -t "iotkit/actors/servo2" -m "0.1" -q 0    
 
 **Hinweis**: Der `broker.mqttdashboard.com` lässt leider nur 1ne Connection zu. Deshalb sollte dieser im Beispiel geändert werden (Eintrag `hostname` in `MQTTPublish/src/main.cpp`). Eine Liste von Öffentlichen MQTT gibt es [hier](https://github.com/mqtt/mqtt.github.io/wiki/public_brokers).
 
