@@ -48,7 +48,7 @@ Mittels der Client Utilities von [Mosquitto](https://projects.eclipse.org/projec
 
 Beispiel: Abfragen der Werte von Temperatur und Luftfeuchtigkeit (Ausgabe: I2C Id, Temperatur, Luftfeuchtigkeit, Motorlaufgeschwindigkeit)
 
-    mosquitto_sub -h broker.mqttdashboard.com -t iotkit/sensor/#
+    mosquitto_sub -h cloud.tbz.ch -t iotkit/sensor/#
     0xBC,22.90,36.9,low
     0xBC,28.00,36.7,middle
     0xBC,32.90,36.7,high
